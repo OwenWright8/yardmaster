@@ -1,0 +1,6 @@
+{
+  "appId": "com.owenwright.yardmaster",
+  "appName": "Yardmaster",
+  "webDir": "dist",
+  "ios": { "contentInset": "never", "backgroundColor": "#1f2a1a" }
+}
