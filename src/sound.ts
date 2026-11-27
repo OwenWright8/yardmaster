@@ -1,3 +1,5 @@
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
 // Little synthesized sounds (no audio files): couplings, the loco moving, chimes, coins. iOS only lets audio start
 // after a tap, so the audio context is created on the first one.
 let ctx: AudioContext | null = null, master: GainNode | null = null;
@@ -34,7 +36,6 @@ export const sfx = {
 };
 // a tiny tap of feedback on phones (the native haptics when it's the app, a vibration where the browser allows)
 export function buzz(kind: 'light' | 'medium' | 'heavy' = 'light') {
-  const h = (window as any).Capacitor?.Plugins?.Haptics;
-  if (h) { h.impact({ style: kind.toUpperCase() }).catch(() => {}); return; }
+  if (Capacitor.isNativePlatform()) { Haptics.impact({ style: kind === 'heavy' ? ImpactStyle.Heavy : kind === 'medium' ? ImpactStyle.Medium : ImpactStyle.Light }).catch(() => {}); return; }
   navigator.vibrate?.(kind === 'heavy' ? 30 : kind === 'medium' ? 18 : 8);
 }

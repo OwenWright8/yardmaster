@@ -33,7 +33,7 @@ Pushing to `main` publishes the game to GitHub Pages (Settings → Pages → bra
 page in Safari and choose **Share → Add to Home Screen**: it runs full screen and works offline.
 
 ## Building the iOS app (on a Mac)
-The project is set up for [Capacitor](https://capacitorjs.com):
+The project is set up for [Capacitor 8](https://capacitorjs.com) (needs Node 22+ and a current Xcode; no CocoaPods):
 ```bash
 npm install
 npm run build
