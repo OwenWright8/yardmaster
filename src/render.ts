@@ -2,7 +2,7 @@
 // above. Positions are worked out along each track's centre line, so trains glide smoothly round the curves.
 import type { State, Yard } from './puzzle';
 import { THEMES, LIVERIES } from './cosmetics';
-import { SPRITE_SCALE, box3d, rock, sprite, tree, type CargoKind } from './art';
+import { SPRITE_SCALE, rock, shade, sprite, tree, type CargoKind } from './art';
 
 export const W = 58;              // one vehicle's length, along the track (in yard units)
 const FOUL = 30;                  // keep this far back from the points
@@ -127,30 +127,29 @@ export function drawBackground(L: Layout, themeId: string, scale: number, dpr: n
   const all = [...L.paths, L.lead];
   const near = (x: number, y: number, d: number) => all.some(p => p.pts.some(([px, py]) => Math.hypot(px - x, py - y) < d)) || all.some(p => { for (let k = 0; k < p.len; k += 10) { const q = p.at(k); if (Math.hypot(q.x - x, q.y - y) < d) return true; } return false; });
   const taken: [number, number, number][] = [];
-  const free = (x: number, y: number, r: number) => !near(x, y, r + 26) && !taken.some(([tx, ty, tr]) => Math.hypot(tx - x, ty - y) < tr + r) && x > x0 + r && x < x0 + w - r && y > r && y < L.h - r;
-  // buildings: a goods shed beside B, a warehouse beside C, the yard office and engine shed down by the headshunt
-  const B = L.paths[1].at(L.paths[1].len - 40), C = L.paths[2].at(L.paths[2].len - 40);
-  const house = (x: number, y: number, bw: number, d: number, h: number, roof: string, wall: string, label?: string) => {
-    box3d(g, x, y, bw, d, h, roof, wall); taken.push([x + bw / 2, y + d / 2, Math.max(bw, d) * 0.7]);
-    if (label) { g.font = 'bold 8px system-ui, sans-serif'; g.textAlign = 'center'; g.fillStyle = '#fff8e8'; g.fillText(label, x + bw / 2, y - h + d * 0.2 + 2); }
-  };
-  house(B.x - 92, B.y - 10, 58, 34, 16, '#8a4a32', '#e5d6bd', 'GOODS');
-  house(C.x + 32, C.y + 6, 56, 30, 14, '#4f6475', '#d9d4c7', 'STORES');
-  house(L.P.x + 38, L.P.y + 70, 60, 30, 14, '#a8463a', '#efe3cc', 'YARD OFFICE');
-  house(L.P.x - 104, L.P.y + 110, 66, 40, 18, '#3e454d', '#9aa0a8', 'ENGINE SHED');
-  // crates, barrels and pallets by the sheds
-  const crate = (x: number, y: number, col: string) => { g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x + 2, y + 2, 9, 9); g.fillStyle = col; g.fillRect(x, y, 9, 9); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 0.8; g.strokeRect(x, y, 9, 9); g.beginPath(); g.moveTo(x, y); g.lineTo(x + 9, y + 9); g.stroke(); };
-  for (let i = 0; i < 5; i++) crate(B.x - 90 + i * 11, B.y + 32 + (i % 2) * 3, ['#b07a3a', '#9a6a30', '#c08a48'][i % 3]);
-  for (let i = 0; i < 4; i++) { const x = C.x + 40 + i * 10, y = C.y + 46; g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.arc(x + 1.5, y + 1.5, 4, 0, 7); g.fill(); g.fillStyle = ['#2d7fd0', '#c0392b', '#2fae60', '#f39c12'][i]; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.4)'; g.beginPath(); g.arc(x - 1, y - 1, 1.5, 0, 7); g.fill(); }
-  // a fence along the bottom, and lamps down the headshunt
-  g.strokeStyle = th.id === 'night' ? '#6a6f7a' : '#7a5a3a'; g.lineWidth = 1.6;
-  for (const y of [L.h - 10, L.h - 6]) { g.beginPath(); g.moveTo(x0 + 6, y); g.lineTo(L.P.x - 26, y); g.moveTo(L.P.x + 26, y); g.lineTo(x0 + w - 6, y); g.stroke(); }
-  for (let x = Math.ceil(x0 / 14) * 14 + 6; x < x0 + w - 4; x += 14) if (Math.abs(x - L.P.x) > 26) { g.fillStyle = g.strokeStyle as string; g.fillRect(x - 1, L.h - 13, 2.5, 9); }
-  for (const [dx, dy] of [[-30, 60], [30, 150], [-30, 230]]) {
-    const x = L.P.x + dx, y = L.P.y + dy; if (y > L.h - 20) continue;
-    if (th.id === 'night') { const gl = g.createRadialGradient(x, y, 0, x, y, 40); gl.addColorStop(0, 'rgba(255,220,140,.45)'); gl.addColorStop(1, 'rgba(255,220,140,0)'); g.fillStyle = gl; g.fillRect(x - 40, y - 40, 80, 80); }
-    g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(x + 4, y + 4, 4, 2, 0.5, 0, 7); g.fill();
-    g.fillStyle = '#3a3a3a'; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill(); g.fillStyle = '#ffe9a8'; g.beginPath(); g.arc(x, y, 1.6, 0, 7); g.fill();
+  const free = (x: number, y: number, r: number) => !near(x, y, r + 52) && !taken.some(([tx, ty, tr]) => Math.hypot(tx - x, ty - y) < tr + r) && x > x0 + r && x < x0 + w - r && y > r && y < L.h - r;
+  // the yard bed: a broad apron of cinders under the whole layout, fading into the grass at its edges
+  const bedStroke = (wd: number, col: string) => { g.strokeStyle = col; g.lineWidth = wd; g.lineCap = 'round'; g.lineJoin = 'round'; for (const p of all) { g.beginPath(); p.pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); } };
+  bedStroke(104, 'rgba(0,0,0,.06)'); bedStroke(96, th.bed + '66'); bedStroke(86, th.bed);
+  // cinder and gravel grit on the bed
+  for (const p of all) for (let d = 0; d < p.len; d += 2.2) {
+    const q = p.at(d), off = (rnd() - 0.5) * 84, x = q.x - Math.sin(q.a) * off, y = q.y + Math.cos(q.a) * off;
+    g.fillStyle = rnd() < 0.5 ? 'rgba(0,0,0,.14)' : 'rgba(255,255,255,.12)'; g.fillRect(x, y, 1.2 + rnd(), 1.2 + rnd());
+  }
+  // tufts of grass creeping in at the edges
+  for (const p of all) for (let d = 0; d < p.len; d += 14) for (const side of [-1, 1]) {
+    if (rnd() < 0.45) continue;
+    const q = p.at(d), off = side * (36 + rnd() * 8), x = q.x - Math.sin(q.a) * off, y = q.y + Math.cos(q.a) * off;
+    if (near(x, y, 30)) continue;
+    g.strokeStyle = th.speck1; g.lineWidth = 1.2; g.beginPath(); for (let k = -1; k <= 1; k++) { g.moveTo(x + k * 1.6, y + 1); g.lineTo(x + k * 2.6, y - 4); } g.stroke();
+  }
+  // floodlight masts at the corners of the yard (their light shows at night)
+  for (const [dx, dy] of [[-64, -30], [64, -30], [-48, 140]]) {
+    const x = L.P.x + dx, y = L.P.y + dy;
+    if (th.id === 'night') { const gl = g.createRadialGradient(x, y, 0, x, y, 120); gl.addColorStop(0, 'rgba(255,220,150,.32)'); gl.addColorStop(1, 'rgba(255,220,150,0)'); g.fillStyle = gl; g.fillRect(x - 120, y - 120, 240, 240); }
+    g.fillStyle = 'rgba(0,0,0,.28)'; g.beginPath(); g.ellipse(x + 9, y + 9, 9, 3, 0.6, 0, 7); g.fill();
+    g.fillStyle = '#4a4f57'; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill();
+    g.fillStyle = '#2f3339'; g.fillRect(x - 7, y - 3, 14, 6); g.fillStyle = '#fff2c4'; g.fillRect(x - 6, y - 2, 5, 4); g.fillRect(x + 1, y - 2, 5, 4);
   }
   // trees, bushes and rocks wherever there's room
   for (let i = 0; i < Math.round(240 * w / L.w); i++) {
@@ -160,21 +159,54 @@ export function drawBackground(L: Layout, themeId: string, scale: number, dpr: n
     if (rnd() < 0.12) rock(g, x, y, r * 0.45, rnd() * 3);
     else tree(g, x, y, r, th.tree[i % th.tree.length], th.id === 'snow' || (th.id !== 'meadow' && rnd() < 0.4), th.id === 'snow', i);
   }
-  // track: ballast, sleepers, rails
-  const stroke = (p: Path, w: number, col: string, dash?: number[]) => { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round'; g.setLineDash(dash ?? []); g.beginPath(); p.pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); g.setLineDash([]); };
-  for (const p of all) stroke(p, 40, th.ballastEdge);
-  for (const p of all) stroke(p, 34, th.ballast);
-  for (const p of all) { const n = Math.floor(p.len / 9); for (let k = 0; k <= n; k++) { const q = p.at(k * 9); g.save(); g.translate(q.x, q.y); g.rotate(q.a); g.fillStyle = th.sleeper; g.fillRect(-2.2, -15, 4.4, 30); g.restore(); } }
-  for (const p of all) for (const off of [-8, 8]) {
-    g.strokeStyle = th.rail; g.lineWidth = 2.6; g.beginPath();
-    p.pts.forEach(([x, y], i) => { const q = p.at(p.cum[i]), nx = -Math.sin(q.a) * off, ny = Math.cos(q.a) * off; i ? g.lineTo(x + nx, y + ny) : g.moveTo(x + nx, y + ny); }); g.stroke();
+  // track: ballast shoulders with stones, wooden sleepers with tie plates, rails with a polished top
+  const stroke = (p: Path, wd: number, col: string) => { g.strokeStyle = col; g.lineWidth = wd; g.lineCap = 'butt'; g.lineJoin = 'round'; g.beginPath(); p.pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); };
+  for (const p of all) stroke(p, 42, th.ballastEdge);
+  for (const p of all) stroke(p, 36, th.ballast);
+  for (const p of all) for (let d = 0; d < p.len; d += 1.6) {
+    const q = p.at(d), off = (rnd() - 0.5) * 34, x = q.x - Math.sin(q.a) * off, y = q.y + Math.cos(q.a) * off;
+    g.fillStyle = ['rgba(0,0,0,.18)', 'rgba(255,255,255,.22)', 'rgba(0,0,0,.08)'][Math.floor(rnd() * 3)]; g.beginPath(); g.arc(x, y, 0.7 + rnd() * 0.9, 0, 7); g.fill();
   }
-  // the points: a lever box beside them
-  { const x = L.P.x + 26, y = L.P.y - 26; g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + 2, y + 2, 12, 9); g.fillStyle = '#5a4636'; g.fillRect(x, y, 12, 9); g.fillStyle = '#d6412f'; g.fillRect(x + 4, y - 6, 3, 8); g.fillStyle = '#fff'; g.fillRect(x + 4, y - 6, 3, 2); }
-  // buffer stops at the far end of each siding
-  for (const p of L.paths) { const q = p.at(p.len); g.save(); g.translate(q.x, q.y); g.rotate(q.a); g.fillStyle = '#5a3a24'; g.fillRect(-2, -17, 8, 34); g.fillStyle = '#d63a2a'; g.fillRect(0, -13, 6, 26); g.fillStyle = '#fff'; g.fillRect(0, -3, 6, 6); g.restore(); }
-  // siding letters
-  g.font = 'bold 22px system-ui, -apple-system, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  ['A', 'B', 'C'].forEach((ch, i) => { const q = L.paths[i].at(L.paths[i].len); g.fillStyle = th.label; g.fillText(ch, q.x + (i === 0 ? 0 : i === 1 ? -32 : 32), q.y - 22 + (i ? 22 : 0)); });
+  const sleeperCol = (k: number) => shade(th.sleeper, ((k * 37) % 11) - 5);
+  for (const p of all) {
+    const n = Math.floor(p.len / 8);
+    for (let k = 0; k <= n; k++) {
+      const q = p.at(k * 8); g.save(); g.translate(q.x, q.y); g.rotate(q.a);
+      g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(-1.6, -14, 4.8, 29);
+      g.fillStyle = sleeperCol(k); g.fillRect(-2.4, -15, 4.8, 30);
+      g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(-2.4, -15, 1.2, 30);
+      g.fillStyle = '#3d3a38'; g.fillRect(-2.6, -10.5, 5.2, 5); g.fillRect(-2.6, 5.5, 5.2, 5);   // tie plates under the rails
+      g.restore();
+    }
+  }
+  const rail = (p: Path, off: number, wd: number, col: string, dy = 0) => {
+    g.strokeStyle = col; g.lineWidth = wd; g.lineCap = 'butt'; g.beginPath();
+    p.pts.forEach(([x, y], i) => { const q = p.at(p.cum[i]), nx = -Math.sin(q.a) * off, ny = Math.cos(q.a) * off; i ? g.lineTo(x + nx + dy, y + ny + dy) : g.moveTo(x + nx + dy, y + ny + dy); }); g.stroke();
+  };
+  for (const p of all) for (const off of [-8, 8]) { rail(p, off, 3.4, 'rgba(0,0,0,.35)', 0.9); rail(p, off, 3, th.rail); rail(p, off - 0.5, 1, 'rgba(235,240,245,.75)'); }
+  // the points: a check rail and the frog where the routes divide, and the point lever beside them
+  { const x = L.P.x, y = L.P.y - 52; g.fillStyle = '#3d3a38'; g.beginPath(); g.moveTo(x, y - 8); g.lineTo(x - 4, y + 10); g.lineTo(x + 4, y + 10); g.closePath(); g.fill(); }
+  { const x = L.P.x + 30, y = L.P.y - 6;
+    g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x + 2, y + 2, 14, 10); g.fillStyle = '#6b4a32'; g.fillRect(x, y, 14, 10); g.fillStyle = 'rgba(255,255,255,.15)'; g.fillRect(x, y, 14, 2);
+    g.strokeStyle = '#2b2b2b'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(x + 7, y + 5); g.lineTo(x + 3, y - 9); g.stroke();
+    g.fillStyle = '#d6412f'; g.beginPath(); g.arc(x + 3, y - 10, 2.6, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(x + 2.3, y - 10.6, 0.9, 0, 7); g.fill(); }
+  // buffer stops: a timber frame, two sprung buffers, a red and white beam and a lamp
+  for (const p of L.paths) {
+    const q = p.at(p.len); g.save(); g.translate(q.x, q.y); g.rotate(q.a);
+    g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(1, -18, 12, 38);
+    g.fillStyle = '#4e3826'; g.fillRect(2, -18, 10, 36); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(2, -18, 10, 2);
+    g.fillStyle = '#d63a2a'; g.fillRect(-1, -15, 5, 30); g.fillStyle = '#fff'; for (const yy of [-9, 3]) g.fillRect(-1, yy, 5, 6);
+    g.fillStyle = '#2b2b2b'; for (const yy of [-8, 8]) { g.fillRect(-5, yy - 2.5, 5, 5); g.fillStyle = '#9aa1a8'; g.beginPath(); g.arc(-5, yy, 3, 0, 7); g.fill(); g.fillStyle = '#2b2b2b'; }
+    g.fillStyle = '#ff4433'; g.beginPath(); g.arc(8, 0, 2.6, 0, 7); g.fill(); g.fillStyle = 'rgba(255,90,70,.35)'; g.beginPath(); g.arc(8, 0, 6, 0, 7); g.fill();
+    g.restore();
+  }
+  // siding names on little painted boards beside the buffers
+  g.font = 'bold 13px system-ui, -apple-system, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  ['A', 'B', 'C'].forEach((ch, i) => {
+    const q = L.paths[i].at(L.paths[i].len), x = q.x + (i === 1 ? -28 : 28), y = q.y + 4;
+    g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.roundRect(x - 9 + 2, y - 9 + 2, 18, 18, 4); g.fill();
+    g.fillStyle = '#1f3a5f'; g.beginPath(); g.roundRect(x - 9, y - 9, 18, 18, 4); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 1.2; g.beginPath(); g.roundRect(x - 7.5, y - 7.5, 15, 15, 3); g.stroke();
+    g.fillStyle = '#fff'; g.fillText(ch, x, y + 0.5);
+  });
   return cv;
 }
